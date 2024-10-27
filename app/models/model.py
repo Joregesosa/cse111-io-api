@@ -1,7 +1,8 @@
-from config.db_conn import connection
+from ..config.db_config import db_config
+import aiomysql as aio
+from aiomysql.cursors import DictCursor
 
-class Model():
- 
+class Model:
     def __init__(self):
         child = (self.__class__.__name__).lower()
         last = child[-1]
@@ -11,65 +12,82 @@ class Model():
             self._table = child + "es"
         else:
             self._table = child + "s"
-            
-        self.cursor = connection.cursor(dictionary=True)
-        
-    def all(self):
+
+    async def __execute(self, query, values=None) -> DictCursor:
+        """ 
+          Create a connection pool and execute the query and return the cursor.
+        """
+        pool = await aio.create_pool(**db_config)
         try:
-            query = f"SELECT * FROM {self._table}"
-            self.cursor.execute(query)
-            return self.cursor.fetchall()
+            async with pool.acquire() as connection:
+                async with connection.cursor(DictCursor) as cursor:
+                    await cursor.execute(query, values)
+                    if query.strip().upper().startswith(("INSERT", "UPDATE", "DELETE")):
+                        await connection.commit()
+                        
+                    return cursor
         except Exception as e:
             raise e
-    
-    def find(self, id):
+        finally:
+            pool.close()
+            await pool.wait_closed()
+         
+    async def all(self):
+        try:
+            query = f"SELECT * FROM {self._table}"
+            cursor = await self.__execute(query)
+            rs = await cursor.fetchall()
+            return rs
+        except Exception as e:
+            raise e
+            
+    async def find(self, id):
         try:
             query = f"SELECT * FROM {self._table} WHERE id = %s"
             values = (id,)
-            self.cursor.execute(query, values)
-            return self.cursor.fetchone()
+            cursor = await self.__execute(query, values)
+            rs = await cursor.fetchone()
+            return rs
         except Exception as e:
             raise e
-    
-    def where(self, field, value):
+
+    async def where(self, field, value):
         try:
             query = f"SELECT * FROM {self._table} WHERE {field} = %s"
             values = (value,)
-            self.cursor.execute(query, values)
-            return self.cursor.fetchall 
+            cursor = await self.__execute(query, values)
+            rs = await cursor.fetchall()
+            return rs
 
         except Exception as e:
             raise e
-    
-    def create(self, data):
+
+    async def create(self, data):
         try:
-            keys = ', '.join(data.keys())
-            values = ', '.join(['%s'] * len(data))
+            keys = ", ".join(data.keys())
+            values = ", ".join(["%s"] * len(data))
             query = f"INSERT INTO {self._table} ({keys}) VALUES ({values})"
-            self.cursor.execute(query, list(data.values()))
-            connection.commit()
-            return self.cursor.lastrowid
+            cursor = await self.__execute(query, list(data.values()))     
+            rs =  cursor.lastrowid   
+            return rs
         except Exception as e:
             raise e
-    
-    def update(self, id, data):
+
+    async def update(self, id, data):
         try:
             query = f"UPDATE {self._table} SET "
-            query += ', '.join([f"{key} = %s" for key in data.keys()])
+            query += ", ".join([f"{key} = %s" for key in data.keys()])
             query += f" WHERE id = {id}"
-            self.cursor.execute(query, list(data.values()))
-            connection.commit()
-            return self.cursor.rowcount
+            cursor = await self.__execute(query, list(data.values()))
+            return cursor.rowcount
         except Exception as e:
             raise e
-    
-    def delete(self, id):
+
+    async def delete(self, id):
         try:
-            query = f"DELETE FROM {self._table} WHERE id = {id}"
-            self.cursor.execute(query)
-            connection.commit()
-            return self.cursor.rowcount
+            query = f"DELETE FROM {self._table} WHERE id = %s"
+            values = (id,)
+            cursor = await self.__execute(query, values)
+            return cursor.rowcount
         except Exception as e:
             raise e
-    
- 

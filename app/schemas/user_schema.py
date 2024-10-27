@@ -12,4 +12,3 @@ class UserSchemaUpdate(BaseModel):
     name: Optional[str] = Field(None, example="John Doe")
     email: Optional[EmailStr] = Field(None, example="example@mail.com")
     password: Optional[str] = Field(None, example="password")
-

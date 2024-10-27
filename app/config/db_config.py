@@ -1,14 +1,13 @@
-
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 db_config = {
-    'DB_NAME': os.getenv("DB_NAME"),
-    'DB_USER' : os.getenv("DB_USER"),
-    'DB_PASSWORD' : os.getenv("DB_PASSWORD"),
-    'DB_HOST' : os.getenv("DB_HOST"),
-    'DB_PORT' : os.getenv("DB_PORT")
+    'host': os.getenv("DB_HOST"),
+    'db' : os.getenv("DB_NAME"),
+    'user' : os.getenv("DB_USER"),
+    'password' : os.getenv("DB_PASSWORD"),
+    'port' : int(os.getenv("DB_PORT"))
 }
 
  

@@ -1,4 +1,4 @@
-from models import Model
+from .model import Model
 
 class Incomes(Model):
     def __init__(self):

@@ -20,22 +20,20 @@ async def show(request: Request, category_id: int):
         _category = await category.find(category_id)
         if not _category or _category["user_id"] != user_id:
             return HTTPException(status_code=404, detail="Category not found")
- 
-        if not _category:
-            return HTTPException(status_code=404, detail="Category not found")
 
         return _category
     except Exception as e:
-        return e
+        return HTTPException(status_code=400, detail=str(e))
 
 async def store(request: Request ,category: CategorySchema):
     try:
+        print(category)
         auth_user = request.state.auth_user
         _category = Category()
         data = category.model_dump()
         data["user_id"] = auth_user["id"]
-        new_category = await _category.create(data)
-        return JSONResponse(content={"message": "category created successfully", "id": new_category}, status_code=201)
+        await _category.create(data)
+        return JSONResponse(status_code=201, content={"message": "category created successfully"})
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
 

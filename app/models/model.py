@@ -27,12 +27,13 @@ class Model:
     async def find(self, id):
         try:
             conn = Database()
+            conn.row_factory()
             cursor = conn.getCursor()
             query = f"SELECT * FROM {self._table} WHERE id = ?"
             values = (id,)
             cursor.execute(query, values)
             rs =  cursor.fetchone()
-            return rs
+            return dict(rs) if rs else None
         except Exception as e:
             raise e
         finally:
@@ -41,11 +42,14 @@ class Model:
     async def where(self, field, value):
         try:
             conn = Database()
+            conn.row_factory()
             cursor = conn.getCursor()
             query = f"SELECT * FROM {self._table} WHERE {field} = ?"
             values = (value,)
             cursor.execute(query, values)
             rs =  cursor.fetchall()
+            for i, r in enumerate(rs):
+                rs[i] = dict(r)
             return rs
         except Exception as e:
             raise e

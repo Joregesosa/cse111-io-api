@@ -1,3 +1,4 @@
+from re import search
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from ..models.category_model import Category
@@ -8,7 +9,7 @@ async def index(request: Request):
     try:
         auth_user = request.state.auth_user
         category = Category()
-        categories = await category.where("user_id", auth_user["id"])
+        categories = await category.where({ "user_id": auth_user["id"]})
         return JSONResponse(status_code=200, content={"data": categories})
     except Exception as e:
         return JSONResponse(status_code=400, content={"details": str(e)})
@@ -28,7 +29,8 @@ async def show(request: Request, category_id: int):
 async def store(request: Request ,category: CategorySchema):
     try:
         auth_user = request.state.auth_user
-        exist = await Category().where("name", category.name)
+        exist = await Category().where({"name": category.name})
+        
         if exist and exist[0]["user_id"] == auth_user["id"]:
             return JSONResponse(status_code=400, content={"details": "category already exists"})
         

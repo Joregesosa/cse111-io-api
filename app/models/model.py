@@ -1,6 +1,11 @@
+from ast import Try
+from re import M
+
+from httpx import request
 from ..DB.db_conn import Database
+
+
 class Model:
-    
     def __init__(self):
         child = (self.__class__.__name__).lower()
         last = child[-1]
@@ -23,7 +28,7 @@ class Model:
             raise e
         finally:
             conn.close()
-            
+
     async def find(self, id):
         try:
             conn = Database()
@@ -32,24 +37,42 @@ class Model:
             query = f"SELECT * FROM {self._table} WHERE id = ?"
             values = (id,)
             cursor.execute(query, values)
-            rs =  cursor.fetchone()
+            rs = cursor.fetchone()
             return dict(rs) if rs else None
         except Exception as e:
             raise e
         finally:
             conn.close()
 
-    async def where(self, field, value):
+    async def where(self, data):
         try:
             conn = Database()
             conn.row_factory()
             cursor = conn.getCursor()
-            query = f"SELECT * FROM {self._table} WHERE {field} = ?"
-            values = (value,)
+            print(data)
+            fields = "AND ".join([f"{key} = ?" for key in data.keys()])
+            values = list(data.values())
+
+            query = f"SELECT * FROM {self._table} WHERE {fields}"
+            print(query)
             cursor.execute(query, values)
-            rs =  cursor.fetchall()
+            rs = cursor.fetchall()
             for i, r in enumerate(rs):
                 rs[i] = dict(r)
+            return rs
+        except Exception as e:
+            print(e)
+            raise e
+        finally:
+            conn.close()
+
+    async def query(self, text):
+        print(text)
+        try:
+            conn = Database()
+            cursor = conn.getCursor()
+            cursor.execute(text)
+            rs = cursor.fetchall()
             return rs
         except Exception as e:
             raise e
@@ -65,7 +88,7 @@ class Model:
             query = f"INSERT INTO {self._table} ({keys}) VALUES ({values})"
             cursor.execute(query, list(data.values()))
             conn.commit()
-            rs =  True 
+            rs = True
             return rs
         except Exception as e:
             conn.rollback()
@@ -85,7 +108,7 @@ class Model:
             conn.commit()
             return cursor.rowcount
         except Exception as e:
-            print('error')
+            print("error")
             conn.rollback()
             raise e
         finally:

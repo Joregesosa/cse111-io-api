@@ -1,3 +1,5 @@
+from re import search
+from httpx import request
 from ..config.app_config import app_config
 from ..schemas.auth_schema import LoginSchema, RegisterSchema, PasswordSchema,UpdateSchema
 from ..utils.get_token import get_token
@@ -7,18 +9,14 @@ from fastapi.responses import JSONResponse
 import bcrypt
 import jwt
 
-
-
-
+ 
 async def login(auth: LoginSchema) -> JSONResponse:
     try:
         user = User()
-        _user = await user.where("email", auth.email)
+ 
+        _user = await user.where({"email": auth.email})
         
         _user = _user[0] if _user else None
-        
-        print(_user)
-        
         
         if not _user:
             return JSONResponse(status_code=400, content={"details": "email or password is incorrect"})
@@ -38,7 +36,9 @@ async def login(auth: LoginSchema) -> JSONResponse:
 async def register(auth: RegisterSchema) -> JSONResponse:
     try:
         user = User()
-        _user = await user.where("email", auth.email)
+
+        _user = await user.where({"email": auth.email})
+
         if _user:
             return JSONResponse(status_code=400, content={"details": "user already exists"})
         

@@ -80,6 +80,12 @@ script =  '''
         BEGIN
             UPDATE balances SET amount = amount - OLD.amount + NEW.amount WHERE user_id = NEW.user_id;
         END;
+        
+        DROP TRIGGER IF EXISTS `after_insert_users`;
+        CREATE TRIGGER `after_insert_users` AFTER INSERT ON `users`
+        BEGIN
+            INSERT INTO balances (user_id, amount) VALUES (NEW.id, 0);
+        END;
     '''
 
 

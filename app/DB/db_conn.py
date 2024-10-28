@@ -2,7 +2,7 @@ import sqlite3
 
 class Database:
     def __init__(self):
-        self.conn = sqlite3.connect('app/DB/io_db.db')
+        self.conn = sqlite3.connect('app/DB/io_db.sqlite')
         
     def getCursor(self):
         cursor = self.conn.cursor()

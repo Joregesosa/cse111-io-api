@@ -1,11 +1,9 @@
- 
 from fastapi import APIRouter, Depends
 from ..controllers.category_controller import index, show, store, update
 from ..utils.get_token import get_token
 
 
 category_router = APIRouter(prefix="/category", dependencies=[Depends(get_token)])
-
 
 category_router.get("/")(index)
 

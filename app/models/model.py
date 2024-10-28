@@ -68,7 +68,7 @@ class Model:
             rs =  True 
             return rs
         except Exception as e:
-            data.rollback()
+            conn.rollback()
             raise e
         finally:
             conn.close()

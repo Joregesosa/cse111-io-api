@@ -9,9 +9,9 @@ async def index(request: Request):
         auth_user = request.state.auth_user
         category = Category()
         categories = await category.where("user_id", auth_user["id"])
-        return categories
+        return JSONResponse(status_code=200, content={"data": categories})
     except Exception as e:
-        return e
+        return JSONResponse(status_code=400, content={"details": str(e)})
 
 async def show(request: Request, category_id: int):
     try:
@@ -19,23 +19,26 @@ async def show(request: Request, category_id: int):
         category = Category()
         _category = await category.find(category_id)
         if not _category or _category["user_id"] != user_id:
-            return HTTPException(status_code=404, detail="Category not found")
+            return JSONResponse(status_code=404, content={"details": "category not found"})
 
         return _category
     except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
+        return JSONResponse(status_code=400, content={"details": str(e)})
 
 async def store(request: Request ,category: CategorySchema):
     try:
-        print(category)
         auth_user = request.state.auth_user
+        exist = await Category().where("name", category.name)
+        if exist and exist[0]["user_id"] == auth_user["id"]:
+            return JSONResponse(status_code=400, content={"details": "category already exists"})
+        
         _category = Category()
         data = category.model_dump()
         data["user_id"] = auth_user["id"]
         await _category.create(data)
-        return JSONResponse(status_code=201, content={"message": "category created successfully"})
+        return JSONResponse(status_code=201, content={"details": "category created successfully"})
     except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
+        return JSONResponse(status_code=400, content={"details": str(e)})
 
 async def update(request: Request ,category_id: int, category: CategorySchema):
     try:
@@ -43,17 +46,17 @@ async def update(request: Request ,category_id: int, category: CategorySchema):
 
         data = category.model_dump(exclude_unset=True)
         if not data:
-            return HTTPException(status_code=400, detail="No data to update")
+            return JSONResponse(status_code=400, content={"details": "No data to update"})
 
         exist = await _category.find(category_id)
         if not exist or exist["user_id"] != request.state.auth_user["id"]:
-            return HTTPException(status_code=404, detail="Category not found")
+            return JSONResponse(status_code=404, content={"details": "Category not found"})
 
         await _category.update(category_id, data)
-        return {"message": "category updated successfully"}
+        return JSONResponse(status_code=200, content={"details": "category updated successfully"})
 
     except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
+        return JSONResponse(status_code=400, content={"details": str(e)})
 
 async def destroy(user_id: int):
     return {"message": f"Delete user {user_id}"}

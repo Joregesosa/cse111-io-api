@@ -1,5 +1,4 @@
 import pytest
-from ..config.app_config import  app_config
 from fastapi.testclient import TestClient
 from ..main import app
 from ..DB.sqlite_config import create_database

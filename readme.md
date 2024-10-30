@@ -8,8 +8,8 @@ This project is a financial management API built with FastAPI. It provides endpo
 
 1. Clone the repository:
     ```sh
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone https://github.com/Joregesosa/cse111-io-api.git
+    cd cse111-io-api
     ```
 
 2. Create and activate a virtual environment:

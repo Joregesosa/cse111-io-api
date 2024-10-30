@@ -32,3 +32,10 @@ To run the FastAPI project, use the following command:
 ```sh
 fastapi dev app/main.py
 ```
+
+## Running tests
+
+To run the FastAPI project, use the following command:
+```sh
+pytest
+```

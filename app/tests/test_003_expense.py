@@ -23,6 +23,8 @@ def test_get_expenses():
     response = client.get('/expense', headers={"Authorization": token})
     assert response.status_code == 200
     assert 'data' in response.json()
+    assert 'amount' in response.json()['data'][0]
+    assert 'description' in response.json()['data'][0]
 
 def test_get_expense():
     response = client.get('/expense/1', params={"expense_id": 1}, headers={"Authorization": token})

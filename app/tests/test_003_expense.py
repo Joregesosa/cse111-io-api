@@ -12,7 +12,7 @@ def test_create_expense():
     print(response.status_code)
     assert response.json()['details'] == "expense created successfully"
 
-""" 
+
 def test_update_expense():
     response = client.put('/expense/1', params={"expense_id": 1}, json={"amount": 2000, "description": "expense 1 updated", "category_id": 1}, headers={"Authorization": token})
     assert response.status_code == 200
@@ -27,10 +27,9 @@ def test_get_expenses():
 def test_get_expense():
     response = client.get('/expense/1', params={"expense_id": 1}, headers={"Authorization": token})
     assert response.status_code == 200
-    assert response.json()['amount'] == 2000
-    assert response.json()['description'] == "expense 1 updated"
+    assert response.json()['data']['amount'] == 2000
+    assert response.json()['data']['description'] == "expense 1 updated"
     response = client.get('/expense/2', params={"expense_id": 2}, headers={"Authorization": token})
     assert response.status_code == 404
     assert response.json()['details'] == "expense not found"
 
- """

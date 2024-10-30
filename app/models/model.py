@@ -49,25 +49,20 @@ class Model:
             conn = Database()
             conn.row_factory()
             cursor = conn.getCursor()
-            print(data)
             fields = "AND ".join([f"{key} = ?" for key in data.keys()])
             values = list(data.values())
-
             query = f"SELECT * FROM {self._table} WHERE {fields}"
-            print(query)
             cursor.execute(query, values)
             rs = cursor.fetchall()
             for i, r in enumerate(rs):
                 rs[i] = dict(r)
             return rs
         except Exception as e:
-            print(e)
             raise e
         finally:
             conn.close()
 
     async def query(self, text):
-        print(text)
         try:
             conn = Database()
             cursor = conn.getCursor()
@@ -108,7 +103,6 @@ class Model:
             conn.commit()
             return cursor.rowcount
         except Exception as e:
-            print("error")
             conn.rollback()
             raise e
         finally:

@@ -29,7 +29,9 @@ async def store(request: Request ,income: IncomeSchema):
     try:
         balance = Balance()
         _income = Income()
+        
         data = income.model_dump(exclude_unset=True)
+        
         user_id = request.state.auth_user["id"]
         current_balance = await balance.where({"user_id": user_id})
 
@@ -60,18 +62,7 @@ async def update(request: Request ,income_id: int, income: IncomeSchema):
         exist = await _income.find(income_id)
         if not exist or exist["user_id"] != request.state.auth_user["id"]:
             return JSONResponse(status_code=404, content={"details": "Income not found"})
-
-        pos_incomes = await _income.query(f"SELECT * FROM incomes WHERE user_id = {user_id}  AND created_at > '{exist['created_at']}'")
-        if pos_incomes:
-            return JSONResponse(status_code=400, content={"details": "Cannot update income after another transaction has been made"})
-        
-        
-        
-        # pos_expenses = await _income.query(f"SELECT * FROM expenses WHERE user_id = {user_id} AND created_at > {exist['created_at']}")
-
-        # if pos_expenses:
-        #     return JSONResponse(status_code=400, content={"details": "Cannot update income after another transaction has been made"})
-
+ 
         r_balance = current_balance[0]["amount"] - exist["amount"] + data["amount"]
         data["r_balance"] = r_balance
 

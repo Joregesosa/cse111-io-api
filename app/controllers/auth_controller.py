@@ -1,5 +1,3 @@
-from re import search
-from httpx import request
 from ..config.app_config import app_config
 from ..schemas.auth_schema import LoginSchema, RegisterSchema, PasswordSchema,UpdateSchema
 from ..utils.get_token import get_token

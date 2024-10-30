@@ -1,6 +1,6 @@
 import sqlite3
 
-script =  '''
+script = """
             DROP TABLE IF EXISTS `users`;
             CREATE TABLE `users` (
                 `id` INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,6 +29,7 @@ script =  '''
                 `amount` DECIMAL(10,0) NOT NULL,
                 `description` TEXT NOT NULL,
                 `r_balance` DECIMAL(10,0) NOT NULL,
+                `expense_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
@@ -86,19 +87,20 @@ script =  '''
             BEGIN
                 INSERT INTO balances (user_id, amount) VALUES (NEW.id, 0);
             END;
-    '''
+    """
 
 
 def create_database():
     try:
-        conn = sqlite3.connect('app/DB/io_db.sqlite')
+        conn = sqlite3.connect("app/DB/io_db.sqlite")
         cursor = conn.cursor()
-        cursor.executescript(script)    
+        cursor.executescript(script)
         conn.commit()
         print("Database created successfully")
     except Exception as e:
         print(e)
     finally:
         conn.close()
+
 
 create_database()

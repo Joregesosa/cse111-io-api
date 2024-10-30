@@ -1,5 +1,3 @@
-from re import search
-from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from ..models.category_model import Category
 from ..schemas.category_schema import CategorySchema
